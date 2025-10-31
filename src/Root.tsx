@@ -13,7 +13,7 @@ export const RemotionRoot: React.FC = () => {
         // npx remotion render HelloWorld
         id="HelloWorld"
         component={HelloWorld}
-        durationInFrames={150}
+        durationInFrames={540}
         fps={30}
         width={1920}
         height={1080}
@@ -21,7 +21,7 @@ export const RemotionRoot: React.FC = () => {
         // https://www.remotion.dev/docs/parametrized-rendering
         schema={myCompSchema}
         defaultProps={{
-          titleText: "Welcome to Remotion",
+          titleText: "Hello World!",
           titleColor: "#000000",
           logoColor1: "#91EAE4",
           logoColor2: "#86A8E7",

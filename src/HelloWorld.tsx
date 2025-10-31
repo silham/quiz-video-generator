@@ -5,12 +5,15 @@ import {
   Sequence,
   useCurrentFrame,
   useVideoConfig,
+  Audio,
+  staticFile,
 } from "remotion";
-import { Logo } from "./HelloWorld/Logo";
-import { Subtitle } from "./HelloWorld/Subtitle";
-import { Title } from "./HelloWorld/Title";
 import { z } from "zod";
 import { zColor } from "@remotion/zod-types";
+import { Timer } from "./Quiz/Timer";
+import { Question } from "./Quiz/Question";
+import { QuizImage } from "./Quiz/QuizImage";
+import { BubbleBackground } from "./Quiz/BubbleBackground";
 
 export const myCompSchema = z.object({
   titleText: z.string(),
@@ -58,17 +61,29 @@ export const HelloWorld: React.FC<z.infer<typeof myCompSchema>> = ({
   // A <AbsoluteFill> is just a absolutely positioned <div>!
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
+      <BubbleBackground bubbleCount={40} />
+      {/* Correct answer sound effect at 9 seconds */}
+      <Sequence from={9 * fps}>
+        <Audio src={staticFile("mixkit-correct-answer-tone-2870.wav")} />
+      </Sequence>
       <AbsoluteFill style={{ opacity }}>
-        <AbsoluteFill style={{ transform: `translateY(${logoTranslation}px)` }}>
-          <Logo logoColor1={logoColor1} logoColor2={logoColor2} />
-        </AbsoluteFill>
-        {/* Sequences can shift the time for its children! */}
-        <Sequence from={35}>
-          <Title titleText={propOne} titleColor={propTwo} />
-        </Sequence>
-        {/* The subtitle will only enter on the 75th frame. */}
-        <Sequence from={75}>
-          <Subtitle />
+        <Sequence from={0}>
+          <QuizImage
+            questionImageSrc="1040-500x500.jpg"
+            answerImageSrc="290-500x500.jpg"
+            transitionStartTime={6}
+          />
+          <Question questionText="What is the outer layer of a tooth called?" />
+          <AbsoluteFill
+            style={{
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingBottom: "200px",
+            }}
+          >
+            <Timer time={7} startTime={2} />
+          </AbsoluteFill>
+          {/* <Subtitle /> */}
         </Sequence>
       </AbsoluteFill>
     </AbsoluteFill>
