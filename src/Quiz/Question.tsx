@@ -32,7 +32,7 @@ export const Question: React.FC<{
     >
       <div
         style={{
-          backgroundColor: "#b3f0f0",
+          backgroundColor: "#f9d013",
           borderRadius: "40px",
           padding: "60px 80px",
           border: "4px solid #eee",

@@ -4,13 +4,16 @@ import { useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 export const Timer: React.FC<{
   readonly time: number;
   readonly startTime?: number; // in seconds, when to start filling the timer
-}> = ({ time, startTime = 0 }) => {
+  readonly fadeInDuration?: number; // in seconds, default 0.5
+  readonly fadeOutDuration?: number; // in seconds, default 0.5
+}> = ({ time, startTime = 0, fadeInDuration = 0.2, fadeOutDuration = 0.5 }) => {
   const videoConfig = useVideoConfig();
   const frame = useCurrentFrame();
   const currentTime = frame / videoConfig.fps;
 
   // Calculate fill progress using linear animation
   let widthPercent = 0;
+  let opacity = 0;
 
   if (currentTime >= startTime) {
     // Calculate how many frames have passed since startTime
@@ -29,10 +32,38 @@ export const Timer: React.FC<{
     );
 
     widthPercent = fillProgress * 100;
+
+    // Fade in animation at the start
+    const fadeInFrames = fadeInDuration * videoConfig.fps;
+    const fadeInProgress = interpolate(
+      framesSinceStart,
+      [0, fadeInFrames],
+      [0, 1],
+      {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      }
+    );
+
+    // Fade out animation after timer completes
+    const fadeOutStartFrame = totalFramesForFill;
+    const fadeOutFrames = fadeOutDuration * videoConfig.fps;
+    const fadeOutProgress = interpolate(
+      framesSinceStart,
+      [fadeOutStartFrame, fadeOutStartFrame + fadeOutFrames],
+      [1, 0],
+      {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      }
+    );
+
+    // Combine fade in and fade out
+    opacity = Math.min(fadeInProgress, fadeOutProgress);
   }
 
   return (
-    <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", paddingRight: "80px" }}>
+    <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", paddingRight: "80px", opacity }}>
       <div
         style={{
           width: "1000px",
@@ -56,7 +87,6 @@ export const Timer: React.FC<{
               #6bc947 20px,
               #6bc947 40px
             )`,
-            transition: "width 0.05s linear",
             borderRadius: "40px",
           }}
         />

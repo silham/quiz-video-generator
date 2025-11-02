@@ -64,7 +64,8 @@ const Bubble: React.FC<{
 
 export const BubbleBackground: React.FC<{
   bubbleCount?: number;
-}> = ({ bubbleCount = 30 }) => {
+  bgColor?: string;
+}> = ({ bubbleCount = 30, bgColor = "#ee3452" }) => {
   const frame = useCurrentFrame();
 
   // Generate bubbles continuously - spawn new bubbles every N frames
@@ -74,8 +75,9 @@ export const BubbleBackground: React.FC<{
   // Calculate which bubbles should be visible based on current frame
   const visibleBubbles: Array<{ index: number; startFrame: number }> = [];
   
-  // Only look at frames where bubbles actually spawn (every spawnInterval)
-  const startSearchFrame = Math.max(0, frame - maxBubbleDuration);
+  // Pre-populate bubbles that started before frame 0 (so they're visible at the start)
+  // This creates bubbles that appear to have been animating before the video started
+  const startSearchFrame = Math.max(-maxBubbleDuration, frame - maxBubbleDuration);
   const firstBubbleIndex = Math.ceil(startSearchFrame / spawnInterval);
   const currentBubbleIndex = Math.floor(frame / spawnInterval);
   
@@ -101,7 +103,7 @@ export const BubbleBackground: React.FC<{
         height: "100%",
         overflow: "hidden",
         pointerEvents: "none",
-        backgroundColor: "#ee3452",
+        backgroundColor: bgColor,
       }}
     >
       {limitedBubbles.map((bubble) => (

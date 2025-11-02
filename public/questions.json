@@ -1,0 +1,49 @@
+[
+  {
+    "question": "Which country has the largest population in the world?",
+    "answers": [
+      "India",
+      "China",
+      "United States"
+    ],
+    "correctAnswerIndex": 0,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762067742564_-On_0e6lt",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762067745867_EQxOcX1sH",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": null
+  },
+  {
+    "question": "Which river is the longest in the world?",
+    "answers": [
+      "Nile River",
+      "Amazon River",
+      "Yangtze River"
+    ],
+    "correctAnswerIndex": 0,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762066439664_kke7h4Kfp",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762066441540_WgDy6bRRC4",
+    "categories": [
+      "General Knowledge",
+      "Geography"
+    ],
+    "country": null
+  },
+  {
+    "question": "What is the largest desert in the world?",
+    "answers": [
+      "Sahara Desert",
+      "Arabian Desert",
+      "Antarctic Desert"
+    ],
+    "correctAnswerIndex": 2,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762065928698_3TP_VyhgLe",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762065931004_r2aDIfx09",
+    "categories": [
+      "Geography"
+    ],
+    "country": null
+  }
+]

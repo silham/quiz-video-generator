@@ -1,5 +1,5 @@
 import React from "react";
-import { useCurrentFrame, useVideoConfig, interpolate, spring, Img, staticFile } from "remotion";
+import { useCurrentFrame, useVideoConfig, interpolate, spring, staticFile } from "remotion";
 
 export const QuizImage: React.FC<{
   readonly questionImageSrc: string;
@@ -58,13 +58,14 @@ export const QuizImage: React.FC<{
         left: "80px",
         top: "50%",
         transform: `translate(${translateX}px, -50%)`,
-        width: "40%",
-        maxWidth: "700px",
+        width: "700px",
         height: "700px",
       }}
     >
       <div
         style={{
+          width: "100%",
+          height: "100%",
           backgroundColor: "#ffffff",
           borderRadius: "40px",
           border: "4px solid #eee",
@@ -74,78 +75,38 @@ export const QuizImage: React.FC<{
         }}
       >
         {/* Question Image */}
-        <div style={{ position: "relative", width: "100%", height: "100%" }}>
-          <Img
-            src={staticFile(questionImageSrc)}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundImage: `url(${staticFile(questionImageSrc)})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderRadius: "36px",
+            opacity: questionOpacity,
+          }}
+        />
+
+        {/* Answer Image */}
+        {frame >= transitionStartFrame && (
+          <div
             style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
               width: "100%",
-              height: "auto",
-              display: "block",
-              borderRadius: "20px",
-              opacity: questionOpacity,
-              transition: "opacity 0.3s ease-out",
+              height: "100%",
+              backgroundImage: `url(${staticFile(answerImageSrc)})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: "36px",
+              opacity: answerOpacity,
             }}
           />
-
-          {/* Answer Image with Wave Effect */}
-          {frame >= transitionStartFrame && (
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                overflow: "hidden",
-                borderRadius: "20px",
-                opacity: answerOpacity,
-              }}
-            >
-              <Img
-                src={staticFile(answerImageSrc)}
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  display: "block",
-                  borderRadius: "20px",
-                }}
-              />
-              {/* Wave effect mask */}
-              <svg
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  pointerEvents: "none",
-                }}
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <clipPath id="wave-clip">
-                    {[...Array(15)].map((_, i) => {
-                      const waveProgress = Math.min(
-                        1,
-                        Math.max(0, (frame - transitionStartFrame - i * 2) / transitionDuration)
-                      );
-                      const waveY = interpolate(waveProgress, [0, 1], [100, -20]);
-
-                      return (
-                        <path
-                          key={i}
-                          d={`M 0,${waveY + i * 1.5} Q 25,${waveY + i * 1.5 - 8} 50,${waveY + i * 1.5} T 100,${waveY + i * 1.5} L 100,100 L 0,100 Z`}
-                          fill="white"
-                        />
-                      );
-                    })}
-                  </clipPath>
-                </defs>
-              </svg>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

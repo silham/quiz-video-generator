@@ -13,7 +13,7 @@ export const RemotionRoot: React.FC = () => {
         // npx remotion render HelloWorld
         id="HelloWorld"
         component={HelloWorld}
-        durationInFrames={540}
+        durationInFrames={420}
         fps={30}
         width={1920}
         height={1080}
@@ -21,10 +21,14 @@ export const RemotionRoot: React.FC = () => {
         // https://www.remotion.dev/docs/parametrized-rendering
         schema={myCompSchema}
         defaultProps={{
-          titleText: "Hello World!",
-          titleColor: "#000000",
-          logoColor1: "#91EAE4",
-          logoColor2: "#86A8E7",
+          questionNumber: 1,
+          questionText: "What is the outer layer of a tooth called? What is the outer layer of a tooth called? What is the outer layer of a tooth called?",
+          questionImageSrc: "1040-500x500.jpg",
+          answerImageSrc: "290-500x500.jpg",
+          answer: "Enamel",
+          questionAudioSrc: "question1.wav",
+          answerAudioSrc: "answer1.wav",
+          bgColor: "#91dAE2",
         }}
       />
 
