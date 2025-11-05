@@ -1,0 +1,161 @@
+[
+  {
+    "question": "What is the largest island in the world?",
+    "answers": [
+      "Greenland",
+      "Madagascar",
+      "New Guinea"
+    ],
+    "correctAnswerIndex": 0,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762093350048_gx47im4ij",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762093352554_xixsqQOF5",
+    "categories": [
+      "General Knowledge",
+      "Geography"
+    ],
+    "country": null
+  },
+  {
+    "question": "Which country is known as the “Land of the Rising Sun”?",
+    "answers": [
+      "Japan",
+      "South Korea",
+      "China"
+    ],
+    "correctAnswerIndex": 0,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762093054018_CXcKxxg3EJ",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762093055788_gVxpPYC56D",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": null
+  },
+  {
+    "question": "Which line divides the Earth into Northern and Southern Hemispheres?",
+    "answers": [
+      "Prime Meridian",
+      "Tropic of Cancer",
+      "Equator"
+    ],
+    "correctAnswerIndex": 2,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762089826149_aArerwpUd",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762089828566_Q3qo2EFKT",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": null
+  },
+  {
+    "question": "Which ocean is the deepest in the world?",
+    "answers": [
+      "Atlantic Ocean",
+      "Pacific Ocean",
+      "Indian Ocean"
+    ],
+    "correctAnswerIndex": 1,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762089613700_j_plHLQZ4",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762089616314_13ZmDgdXu",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": null
+  },
+  {
+    "question": "What is the capital city of Canada?",
+    "answers": [
+      "Toronto",
+      "Vancouver",
+      "Ottawa"
+    ],
+    "correctAnswerIndex": 2,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762089436262_h6CsqPtsg",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762089441523_NrGhalxE7",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": "Canada"
+  },
+  {
+    "question": "Which is the smallest continent by land area?",
+    "answers": [
+      "Europe",
+      "Australia",
+      "Antarctica"
+    ],
+    "correctAnswerIndex": 1,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762089235327_MhE0Vr8TN",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762089237490_1aZirc0tR",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": null
+  },
+  {
+    "question": "Mount Everest is located on the border between which two countries?",
+    "answers": [
+      "China and India",
+      "Nepal and China",
+      "Bhutan and Nepal"
+    ],
+    "correctAnswerIndex": 1,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762088811199_qQseNDSTB",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762088814495_8nIbPMtvY",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": null
+  },
+  {
+    "question": "Which country has the largest population in the world?",
+    "answers": [
+      "India",
+      "China",
+      "United States"
+    ],
+    "correctAnswerIndex": 0,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762067742564_-On_0e6lt",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762067745867_EQxOcX1sH",
+    "categories": [
+      "Geography",
+      "General Knowledge"
+    ],
+    "country": null
+  },
+  {
+    "question": "Which river is the longest in the world?",
+    "answers": [
+      "Nile River",
+      "Amazon River",
+      "Yangtze River"
+    ],
+    "correctAnswerIndex": 0,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762066439664_kke7h4Kfp",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762066441540_WgDy6bRRC4",
+    "categories": [
+      "General Knowledge",
+      "Geography"
+    ],
+    "country": null
+  },
+  {
+    "question": "What is the largest desert in the world?",
+    "answers": [
+      "Sahara Desert",
+      "Arabian Desert",
+      "Antarctic Desert"
+    ],
+    "correctAnswerIndex": 2,
+    "questionImage": "https://ik.imagekit.io/webloom/quiz-questions/question-1762065928698_3TP_VyhgLe",
+    "answerImage": "https://ik.imagekit.io/webloom/quiz-questions/answer-1762065931004_r2aDIfx09",
+    "categories": [
+      "Geography"
+    ],
+    "country": null
+  }
+]

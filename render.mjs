@@ -16,14 +16,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // The composition you want to render
 const compositionId = 'HelloWorld';
 
+// Default API endpoint
+const DEFAULT_API_ENDPOINT = 'https://quiz-db-one.vercel.app/api/quiz/latest';
+
 // Get CLI arguments
 const args = process.argv.slice(2);
-const jsonFilePath = args[0];
-
-if (!jsonFilePath) {
-  console.error('Usage: node render.mjs <path-to-questions.json>');
-  process.exit(1);
-}
+const jsonFilePath = args[0]; // Optional now
 
 // Function to prompt user for input
 function askQuestion(query) {
@@ -52,6 +50,27 @@ async function downloadImage(url, outputPath) {
   const buffer = await response.arrayBuffer();
   await fs.writeFile(outputPath, Buffer.from(buffer));
   return outputPath;
+}
+
+// Function to fetch questions from API
+async function fetchQuestionsFromAPI(apiUrl = DEFAULT_API_ENDPOINT) {
+  console.log(`Fetching questions from API: ${apiUrl}`);
+  const response = await fetch(apiUrl);
+  
+  if (!response.ok) {
+    throw new Error(`API request failed with status ${response.status}`);
+  }
+  
+  const data = await response.json();
+  
+  if (!data.success || !data.data) {
+    throw new Error('Invalid API response format');
+  }
+  
+  console.log(`✅ Fetched ${data.data.length} questions from API`);
+  console.log(`   Last updated: ${data.updatedAt}\n`);
+  
+  return data.data;
 }
 
 // Function to generate narrative versions using Gemini
@@ -142,11 +161,17 @@ async function renderQuiz() {
     console.log(`   Public assets: public/${quizFolderName}/`);
     console.log(`   Output videos: out/${quizFolderName}/\n`);
 
-    // 1. Load questions from JSON
-    console.log('1. Loading questions from JSON...');
-    const jsonContent = await fs.readFile(jsonFilePath, 'utf-8');
-    const questions = JSON.parse(jsonContent);
-    console.log(`Loaded ${questions.length} questions\n`);
+    // 1. Load questions from JSON file or API
+    let questions;
+    if (jsonFilePath) {
+      console.log('1. Loading questions from JSON file...');
+      const jsonContent = await fs.readFile(jsonFilePath, 'utf-8');
+      questions = JSON.parse(jsonContent);
+      console.log(`Loaded ${questions.length} questions from file\n`);
+    } else {
+      console.log('1. No JSON file provided, fetching from API...');
+      questions = await fetchQuestionsFromAPI();
+    }
 
     // Process each question to generate assets first
     console.log('Generating all assets before bundling...\n');

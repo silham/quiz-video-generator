@@ -2,6 +2,10 @@ import "./index.css";
 import { Composition } from "remotion";
 import { HelloWorld, myCompSchema } from "./HelloWorld";
 import { Logo, myCompSchema2 } from "./HelloWorld/Logo";
+import {
+  BubbleBackgroundComposition,
+  bubbleBackgroundSchema,
+} from "./BubbleBackgroundComposition";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -44,6 +48,20 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           logoColor1: "#91dAE2" as const,
           logoColor2: "#86A8E7" as const,
+        }}
+      />
+
+      <Composition
+        id="BubbleBackground"
+        component={BubbleBackgroundComposition}
+        durationInFrames={1800} // 60 seconds * 30 fps = 1800 frames
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={bubbleBackgroundSchema}
+        defaultProps={{
+          bubbleCount: 40,
+          bgColor: "#239df3",
         }}
       />
     </>
