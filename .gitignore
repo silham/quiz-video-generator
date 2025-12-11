@@ -8,3 +8,7 @@ out
 
 #ignore quiz assets in public/quiz
 public/quiz*
+public/*quiz*
+
+automations-458814-543392c26adf.json
+youtube_client_secrets.json

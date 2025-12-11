@@ -1,6 +1,5 @@
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import textToSpeech from '@google-cloud/text-to-speech';
 import fs from 'fs/promises';
 import path from 'path';
@@ -16,12 +15,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // The composition you want to render
 const compositionId = 'HelloWorld';
 
-// Default API endpoint
-const DEFAULT_API_ENDPOINT = 'https://quiz-db-one.vercel.app/api/quiz/latest';
-
 // Get CLI arguments
 const args = process.argv.slice(2);
-const jsonFilePath = args[0]; // Optional now
+const apiUrlArg = args[0]; // Can be API URL or JSON file path
+
+// Rate limiting configuration
+const RATE_LIMIT_PER_MINUTE = 30;
+const RATE_LIMIT_DELAY = 60000 / RATE_LIMIT_PER_MINUTE; // milliseconds between requests
+let lastRequestTime = 0;
 
 // Function to prompt user for input
 function askQuestion(query) {
@@ -36,8 +37,19 @@ function askQuestion(query) {
   }));
 }
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Rate limiting helper
+async function rateLimitedDelay() {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  
+  if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
+    const delayNeeded = RATE_LIMIT_DELAY - timeSinceLastRequest;
+    console.log(`  Rate limiting: waiting ${Math.ceil(delayNeeded / 1000)}s...`);
+    await new Promise(resolve => setTimeout(resolve, delayNeeded));
+  }
+  
+  lastRequestTime = Date.now();
+}
 
 // Initialize Google Cloud Text-to-Speech client
 const ttsClient = new textToSpeech.TextToSpeechClient({
@@ -53,7 +65,7 @@ async function downloadImage(url, outputPath) {
 }
 
 // Function to fetch questions from API
-async function fetchQuestionsFromAPI(apiUrl = DEFAULT_API_ENDPOINT) {
+async function fetchQuestionsFromAPI(apiUrl) {
   console.log(`Fetching questions from API: ${apiUrl}`);
   const response = await fetch(apiUrl);
   
@@ -67,31 +79,24 @@ async function fetchQuestionsFromAPI(apiUrl = DEFAULT_API_ENDPOINT) {
     throw new Error('Invalid API response format');
   }
   
-  console.log(`✅ Fetched ${data.data.length} questions from API`);
-  console.log(`   Last updated: ${data.updatedAt}\n`);
+  // Handle new API structure where questions are nested in data.questions
+  const questions = data.data.questions || data.data;
   
-  return data.data;
+  console.log(`✅ Fetched ${questions.length} questions from API`);
+  console.log(`   Quiz: ${data.data.name || 'Unknown'}`);
+  if (data.updatedAt) {
+    console.log(`   Last updated: ${data.updatedAt}`);
+  }
+  console.log();
+  
+  return questions;
 }
 
-// Function to generate narrative versions using Gemini
+// Function to generate narrative versions using Groq
 async function generateNarrative(question, correctAnswer) {
-  const model = genAI.getGenerativeModel({
-    model: 'models/gemini-flash-lite-latest',
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseSchema: {
-        type: 'object',
-        properties: {
-          answerNarrative: {
-            type: 'string',
-            description: 'A very short, friendly answer reveal phrase'
-          }
-        },
-        required: ['answerNarrative']
-      }
-    }
-  });
-
+  // Apply rate limiting
+  await rateLimitedDelay();
+  
   const prompt = `Generate a very short answer reveal phrase for a quiz video. Keep it under 5 words.
 
 Correct Answer: ${correctAnswer}
@@ -102,11 +107,42 @@ Examples:
 - If answer is "Mount Everest" → "Yes, Mount Everest"
 - If answer is "Paris" → "It's Paris"
 
-Generate a similar short phrase for: ${correctAnswer}`;
+Generate ONLY the short phrase for: ${correctAnswer}
 
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
-  const parsed = JSON.parse(response);
+Return ONLY a JSON object with this format:
+{"answerNarrative": "your short phrase here"}`;
+
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful assistant that generates short, friendly answer phrases for quiz videos. Always respond with valid JSON only.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 50,
+      response_format: { type: 'json_object' }
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Groq API request failed: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices[0].message.content;
+  const parsed = JSON.parse(content);
   
   // Return question as-is, only modify answer
   return {
@@ -163,14 +199,25 @@ async function renderQuiz() {
 
     // 1. Load questions from JSON file or API
     let questions;
-    if (jsonFilePath) {
-      console.log('1. Loading questions from JSON file...');
-      const jsonContent = await fs.readFile(jsonFilePath, 'utf-8');
-      questions = JSON.parse(jsonContent);
-      console.log(`Loaded ${questions.length} questions from file\n`);
+    if (apiUrlArg) {
+      // Check if it's a URL or file path
+      if (apiUrlArg.startsWith('http://') || apiUrlArg.startsWith('https://')) {
+        console.log('1. Fetching from API...');
+        questions = await fetchQuestionsFromAPI(apiUrlArg);
+      } else {
+        console.log('1. Loading questions from JSON file...');
+        const jsonContent = await fs.readFile(apiUrlArg, 'utf-8');
+        questions = JSON.parse(jsonContent);
+        console.log(`Loaded ${questions.length} questions from file\n`);
+      }
     } else {
-      console.log('1. No JSON file provided, fetching from API...');
-      questions = await fetchQuestionsFromAPI();
+      console.log('1. No API URL or JSON file provided, prompting for API endpoint...');
+      const apiUrl = await askQuestion('Enter API endpoint URL (e.g., https://quiz-db-one.vercel.app/api/quiz/gk50): ');
+      if (!apiUrl || apiUrl.trim() === '') {
+        console.error('❌ API URL is required!');
+        process.exit(1);
+      }
+      questions = await fetchQuestionsFromAPI(apiUrl.trim());
     }
 
     // Process each question to generate assets first
