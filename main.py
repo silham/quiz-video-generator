@@ -115,6 +115,7 @@ Examples:
     parser.add_argument('--api-url', type=str, help='API endpoint URL for fetching questions (e.g., https://quiz-db-one.vercel.app/api/quiz/gk50)')
     parser.add_argument('--output', type=str, help='Output video filename')
     parser.add_argument('--video-path', type=str, help='Path to existing final video for publishing')
+    parser.add_argument('--short', action='store_true', help='Generate vertical Shorts/Reels videos')
     
     # Publishing configuration
     parser.add_argument('--youtube', action='store_true', help='Publish to YouTube')
@@ -189,6 +190,8 @@ def main():
         
         # Run render.mjs
         cmd = ["node", "render.mjs"]
+        if args.short:
+            cmd.append("--short")
         if args.api_url:
             cmd.append(args.api_url)
             print(f"✓ Using API URL: {args.api_url}")
@@ -284,8 +287,12 @@ def main():
         python_cmd = ".venv/bin/python" if os.path.exists(".venv/bin/python") else "python3"
         
         # Run transition.py
+        transition_cmd = [python_cmd, "transition.py", quiz_folder, output_name]
+        if args.short:
+            transition_cmd.append("--short")
+            
         success = run_command(
-            [python_cmd, "transition.py", quiz_folder, output_name],
+            transition_cmd,
             "Joining videos with transitions"
         )
         
@@ -374,6 +381,8 @@ def main():
                 cmd.append("--youtube")
             if publish_facebook:
                 cmd.append("--facebook")
+            if args.short:
+                cmd.append("--short")
             
             cmd.extend(["--title", title, "--description", description])
             

@@ -234,7 +234,7 @@ def save_publish_log(video_path, results):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python publish.py <video_path> [--youtube] [--facebook] [--title 'Title'] [--description 'Desc']")
+        print("Usage: python publish.py <video_path> [--youtube] [--facebook] [--title 'Title'] [--description 'Desc'] [--short]")
         print("\nExample:")
         print("  python publish.py output.mp4 --youtube --facebook --title 'Quiz Video' --description 'Test your knowledge!'")
         print("\nEnvironment Variables Required:")
@@ -252,6 +252,7 @@ def main():
     args = sys.argv[2:]
     upload_youtube = '--youtube' in args
     upload_facebook = '--facebook' in args
+    is_short = '--short' in args
     
     # Get title and description
     title = "Quiz Video"
@@ -266,6 +267,15 @@ def main():
         desc_index = args.index('--description')
         if desc_index + 1 < len(args):
             description = args[desc_index + 1]
+            
+    # Add Shorts tags if needed
+    if is_short:
+        if "#shorts" not in title.lower() and "#shorts" not in description.lower():
+            title += " #shorts"
+        if "#shorts" not in description.lower():
+            description += " #shorts"
+        if "#reels" not in description.lower():
+            description += " #reels"
     
     # If no platform specified, upload to both
     if not upload_youtube and not upload_facebook:

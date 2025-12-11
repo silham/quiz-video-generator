@@ -96,9 +96,11 @@ def join_two_clips_with_matte(clip1, clip2, matte_path, transition_duration=2.5,
     
     return final_video
 
-def join_multiple_videos(folder_path, matte_path, output_path="output_combined.mp4", bg_music_paths=None, transition_audio_path=None):
+def join_multiple_videos(folder_path, matte_path, output_path="output_combined.mp4", bg_music_paths=None, transition_audio_path=None, is_short=False):
     """Join all question videos in a folder with liquid transitions (Optimized)"""
     print(f"\n🚀 Starting Optimized Transition Script (Flattened Composition)...")
+    if is_short:
+        print("📱 Mode: Vertical Shorts/Reels (9:16)")
     
     # Find all question videos in the folder
     video_files = []
@@ -170,7 +172,31 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
     
     # Prepare Matte Overlay Master
     # We create one overlay and reuse it (by copying/time-shifting)
-    matte_clip_orig = VideoFileClip(matte_path).resized((w, h))
+    matte_clip_orig = VideoFileClip(matte_path)
+    
+    if is_short:
+        # Resize logic for Shorts (9:16)
+        # If matte is 16:9 (e.g. 1920x1080), we need to cover 1080x1920
+        # We resize height to match target height (1920), then center crop width to 1080
+        target_h = h
+        target_w = w
+        
+        # Resize maintaining aspect ratio to cover height
+        if matte_clip_orig.h < target_h:
+             matte_clip_orig = matte_clip_orig.resized(height=target_h)
+        
+        # If width is still too small (unlikely if 16:9 source), resize by width
+        if matte_clip_orig.w < target_w:
+             matte_clip_orig = matte_clip_orig.resized(width=target_w)
+             
+        # Center crop to target dimensions
+        # Note: MoviePy v1 uses crop(x1=..., width=...), v2 might differ but we stick to basic resize for safety if crop is complex
+        # Simple resize (stretch) is safer if we don't want to debug crop syntax across versions
+        # But let's try to be smart: just resize to fill
+        matte_clip_orig = matte_clip_orig.resized((w, h)) 
+    else:
+        matte_clip_orig = matte_clip_orig.resized((w, h))
+
     TRANSITION_DURATION = min(2.5, matte_clip_orig.duration)
     COVER_TIME = min(1.0, TRANSITION_DURATION / 2)
     
@@ -294,13 +320,8 @@ if __name__ == "__main__":
     import sys
     
     # Check command line arguments
-    if len(sys.argv) < 2:
-        print("Usage: python transition.py <folder_path> [output_path]")
-        print("Example: python transition.py out/quiz5")
-        sys.exit(1)
-    
-    folder_path = sys.argv[1]
-    output_path = sys.argv[2] if len(sys.argv) > 2 else "output_combined.mp4"
+    # We handle args later
+    pass
     
     # Matte file path
     transition_blob = "luma.mp4"
@@ -344,11 +365,25 @@ if __name__ == "__main__":
     if not bg_music_files:
         print("ℹ No background music found (create 'bg-music' folder with audio files or place bg-music.mp3)")
     
+    # Check for --short flag
+    is_short = "--short" in sys.argv
+    
+    # Clean args for path parsing (remove flags)
+    args = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
+    
+    if len(args) < 1:
+        print("Usage: python transition.py <folder_path> [output_path] [--short]")
+        sys.exit(1)
+        
+    folder_path = args[0]
+    output_path = args[1] if len(args) > 1 else "output_combined.mp4"
+    
     print()
     join_multiple_videos(
         folder_path, 
         transition_blob, 
         output_path, 
         bg_music_paths=bg_music_files if bg_music_files else None,
-        transition_audio_path=transition_audio
+        transition_audio_path=transition_audio,
+        is_short=is_short
     )

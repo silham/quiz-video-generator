@@ -12,12 +12,13 @@ import 'dotenv/config';
 // The directory of the current file
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// The composition you want to render
-const compositionId = 'HelloWorld';
-
 // Get CLI arguments
 const args = process.argv.slice(2);
-const apiUrlArg = args[0]; // Can be API URL or JSON file path
+const isShort = args.includes('--short');
+const apiUrlArg = args.find(arg => !arg.startsWith('--')); // Can be API URL or JSON file path
+
+// The composition you want to render
+const compositionId = isShort ? 'ShortsQuiz' : 'HelloWorld';
 
 // Rate limiting configuration
 const RATE_LIMIT_PER_MINUTE = 30;

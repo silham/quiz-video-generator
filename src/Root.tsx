@@ -6,6 +6,7 @@ import {
   BubbleBackgroundComposition,
   bubbleBackgroundSchema,
 } from "./BubbleBackgroundComposition";
+import { ShortsQuizQuestion, shortsSchema } from "./Quiz/ShortsQuizQuestion";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -62,6 +63,26 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           bubbleCount: 40,
           bgColor: "#239df3",
+        }}
+      />
+
+      <Composition
+        id="ShortsQuiz"
+        component={ShortsQuizQuestion}
+        durationInFrames={300} // 10 seconds * 30 fps
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={shortsSchema}
+        defaultProps={{
+          questionNumber: 1,
+          questionText: "What is the capital of France?",
+          questionImageSrc: "1040-500x500.jpg",
+          answerImageSrc: "290-500x500.jpg",
+          answer: "Paris",
+          questionAudioSrc: "question1.wav",
+          answerAudioSrc: "answer1.wav",
+          bgColor: "#91dAE2",
         }}
       />
     </>
