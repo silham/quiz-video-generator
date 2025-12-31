@@ -68,8 +68,8 @@ export const QuizImage: React.FC<{
           height: "100%",
           backgroundColor: "#ffffff",
           borderRadius: "40px",
-          border: "4px solid #eee",
-          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.1)",
+          border: "6px solid #ffffff",
+          boxShadow: "0 8px 0 rgba(0, 0, 0, 0.2)",
           position: "relative",
           overflow: "hidden",
         }}

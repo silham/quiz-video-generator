@@ -7,6 +7,7 @@ import {
   bubbleBackgroundSchema,
 } from "./BubbleBackgroundComposition";
 import { ShortsQuizQuestion, shortsSchema } from "./Quiz/ShortsQuizQuestion";
+import { MCQQuizQuestion, mcqSchema } from "./Quiz/MCQQuizQuestion";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -31,8 +32,8 @@ export const RemotionRoot: React.FC = () => {
           questionImageSrc: "1040-500x500.jpg",
           answerImageSrc: "290-500x500.jpg",
           answer: "Enamel",
-          questionAudioSrc: "question1.wav",
-          answerAudioSrc: "answer1.wav",
+          questionAudioSrc: "question-2.mp3",
+          answerAudioSrc: "answer-2.mp3",
           bgColor: "#91dAE2",
         }}
       />
@@ -62,7 +63,7 @@ export const RemotionRoot: React.FC = () => {
         schema={bubbleBackgroundSchema}
         defaultProps={{
           bubbleCount: 40,
-          bgColor: "#239df3",
+          bgColor: "#F7B408",
         }}
       />
 
@@ -80,11 +81,33 @@ export const RemotionRoot: React.FC = () => {
           questionImageSrc: "1040-500x500.jpg",
           answerImageSrc: "290-500x500.jpg",
           answer: "Paris",
-          questionAudioSrc: "question1.wav",
-          answerAudioSrc: "answer1.wav",
+          questionAudioSrc: "question-2.mp3",
+          answerAudioSrc: "answer-2.mp3",
+          bgColor: "#91dAE2",
+        }}
+      />
+
+      <Composition
+        id="MCQQuiz"
+        component={MCQQuizQuestion}
+        durationInFrames={420} // 14 seconds * 30 fps
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={mcqSchema}
+        defaultProps={{
+          questionNumber: 1,
+          questionText: "What is the largest planet in our solar system",
+          questionImageSrc: "1040-500x500.jpg",
+          answerImageSrc: "290-500x500.jpg",
+          options: ["Earth", "Jupiter", "Saturn"],
+          correctAnswerIndex: 1,
+          questionAudioSrc: "question-2.mp3",
+          answerAudioSrc: "answer-2.mp3",
           bgColor: "#91dAE2",
         }}
       />
     </>
   );
 };
+

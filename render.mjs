@@ -15,10 +15,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Get CLI arguments
 const args = process.argv.slice(2);
 const isShort = args.includes('--short');
-const apiUrlArg = args.find(arg => !arg.startsWith('--')); // Can be API URL or JSON file path
+const isLong = args.includes('--long');
+const compArgIndex = args.indexOf('--comp');
+const explicitComp = compArgIndex !== -1 ? args[compArgIndex + 1] : null;
+const apiUrlArg = args.find(arg => !arg.startsWith('--') && arg !== explicitComp); // Can be API URL or JSON file path
 
 // The composition you want to render
-const compositionId = isShort ? 'ShortsQuiz' : 'HelloWorld';
+let compositionId = 'MCQQuiz'; // Default to MCQQuiz (16:9)
+
+if (explicitComp) {
+  compositionId = explicitComp;
+} else if (isShort) {
+  compositionId = 'ShortsQuiz';
+} else if (isLong) {
+  compositionId = 'MCQQuiz';
+}
 
 // Rate limiting configuration
 const RATE_LIMIT_PER_MINUTE = 30;
@@ -94,11 +105,33 @@ async function fetchQuestionsFromAPI(apiUrl) {
 }
 
 // Function to generate narrative versions using Groq
-async function generateNarrative(question, correctAnswer) {
+async function generateNarrative(question, correctAnswer, correctAnswerIndex = -1) {
   // Apply rate limiting
   await rateLimitedDelay();
   
-  const prompt = `Generate a very short answer reveal phrase for a quiz video. Keep it under 5 words.
+  let prompt;
+  
+  if (correctAnswerIndex !== -1 && correctAnswerIndex !== undefined) {
+    const labels = ['A', 'B', 'C'];
+    const label = labels[correctAnswerIndex] || '';
+    
+    prompt = `Generate a very short answer reveal phrase for following multiple choice question. Question: ${question}. Keep it under 10 words.
+
+Correct Answer: Option ${label} - ${correctAnswer}
+
+Examples:
+- "Yes, it's C, The Sahara Desert"
+- "You are correct, It's A, 1997"
+- "That's right, it's Mount Everest"
+- "It's K" [when question is about element symbols, or only letter answers]
+- "Correct! It's A, Carbon" [for questions like "what is the building block of diamond?"]
+
+Generate ONLY the short phrase for: Option ${label} - ${correctAnswer}
+
+Return ONLY a JSON object with this format:
+{"answerNarrative": "your short phrase here"}`;
+  } else {
+    prompt = `Generate a very short answer reveal phrase for following question. Question: ${question}. Keep it under 5 words.
 
 Correct Answer: ${correctAnswer}
 
@@ -112,6 +145,7 @@ Generate ONLY the short phrase for: ${correctAnswer}
 
 Return ONLY a JSON object with this format:
 {"answerNarrative": "your short phrase here"}`;
+  }
 
   const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -230,9 +264,9 @@ async function renderQuiz() {
       console.log(`Question: ${q.question}`);
       console.log(`Correct Answer: ${q.answers[q.correctAnswerIndex]}\n`);
 
-      // 2. Generate narrative versions using Gemini
-      console.log('2. Generating narrative versions with Gemini AI...');
-      const narrative = await generateNarrative(q.question, q.answers[q.correctAnswerIndex]);
+      // 2. Generate narrative versions using AI
+      console.log('2. Generating narrative versions with AI...');
+      const narrative = await generateNarrative(q.question, q.answers[q.correctAnswerIndex], q.correctAnswerIndex);
       console.log(`Question Narrative: ${narrative.questionNarrative}`);
       console.log(`Answer Narrative: ${narrative.answerNarrative}\n`);
 
@@ -286,6 +320,12 @@ async function renderQuiz() {
         answerAudioSrc: `${quizFolderName}/answer-${questionNumber}.mp3`,
         bgColor: bgColors[questionNumber % 4],
       };
+
+      // Add MCQ specific props if needed
+      if (compositionId === 'MCQQuiz') {
+        inputProps.options = q.answers;
+        inputProps.correctAnswerIndex = q.correctAnswerIndex;
+      }
 
       const composition = await selectComposition({
         serveUrl: bundleLocation,

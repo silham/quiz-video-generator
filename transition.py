@@ -96,7 +96,7 @@ def join_two_clips_with_matte(clip1, clip2, matte_path, transition_duration=2.5,
     
     return final_video
 
-def join_multiple_videos(folder_path, matte_path, output_path="output_combined.mp4", bg_music_paths=None, transition_audio_path=None, is_short=False):
+def join_multiple_videos(folder_path, matte_path, output_path="output_combined.mp4", bg_music_paths=None, transition_audio_path=None, is_short=False, intro_path=None, outro_path=None):
     """Join all question videos in a folder with liquid transitions (Optimized)"""
     print(f"\n🚀 Starting Optimized Transition Script (Flattened Composition)...")
     if is_short:
@@ -109,10 +109,26 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
         return
     
     # Check for intro and outro
-    intro_path = os.path.join(folder_path, 'intro.mp4')
-    outro_path = os.path.join(folder_path, 'outro.mp4')
-    has_intro = os.path.exists(intro_path)
-    has_outro = os.path.exists(outro_path)
+    final_intro_path = None
+    if intro_path:
+        if os.path.exists(intro_path):
+            final_intro_path = intro_path
+        else:
+            print(f"⚠️ Warning: Intro file not found at {intro_path}")
+    elif os.path.exists(os.path.join(folder_path, 'intro.mp4')):
+        final_intro_path = os.path.join(folder_path, 'intro.mp4')
+
+    final_outro_path = None
+    if outro_path:
+        if os.path.exists(outro_path):
+            final_outro_path = outro_path
+        else:
+            print(f"⚠️ Warning: Outro file not found at {outro_path}")
+    elif os.path.exists(os.path.join(folder_path, 'outro.mp4')):
+        final_outro_path = os.path.join(folder_path, 'outro.mp4')
+
+    has_intro = final_intro_path is not None
+    has_outro = final_outro_path is not None
     
     # Get all files matching question-N.mp4 pattern
     for filename in os.listdir(folder_path):
@@ -132,9 +148,9 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
         print(f"  - Question {num}: {os.path.basename(path)}")
     
     if has_intro:
-        print(f"  ✓ Intro: intro.mp4")
+        print(f"  ✓ Intro: {os.path.basename(final_intro_path)}")
     if has_outro:
-        print(f"  ✓ Outro: outro.mp4")
+        print(f"  ✓ Outro: {os.path.basename(final_outro_path)}")
     print()
     
     # Load all clips
@@ -143,7 +159,7 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
     # Add intro if exists
     if has_intro:
         print("Loading intro...")
-        clips.append(VideoFileClip(intro_path))
+        clips.append(VideoFileClip(final_intro_path))
     
     # Add question clips
     clips.extend([VideoFileClip(path) for num, path in video_files])
@@ -151,7 +167,7 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
     # Add outro if exists
     if has_outro:
         print("Loading outro...")
-        clips.append(VideoFileClip(outro_path))
+        clips.append(VideoFileClip(final_outro_path))
     
     if len(clips) == 1:
         print("Only one video found, no transitions needed.")
@@ -318,10 +334,7 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
 
 if __name__ == "__main__":
     import sys
-    
-    # Check command line arguments
-    # We handle args later
-    pass
+    import argparse
     
     # Matte file path
     transition_blob = "luma.mp4"
@@ -365,25 +378,25 @@ if __name__ == "__main__":
     if not bg_music_files:
         print("ℹ No background music found (create 'bg-music' folder with audio files or place bg-music.mp3)")
     
-    # Check for --short flag
-    is_short = "--short" in sys.argv
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Join quiz videos with transitions')
+    parser.add_argument('folder_path', help='Folder containing question videos')
+    parser.add_argument('output_path', nargs='?', default='output_combined.mp4', help='Output video path')
+    parser.add_argument('--short', action='store_true', help='Vertical mode')
+    parser.add_argument('--long', action='store_true', help='Horizontal mode')
+    parser.add_argument('--intro', type=str, help='Path to intro video')
+    parser.add_argument('--outro', type=str, help='Path to outro video')
     
-    # Clean args for path parsing (remove flags)
-    args = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
-    
-    if len(args) < 1:
-        print("Usage: python transition.py <folder_path> [output_path] [--short]")
-        sys.exit(1)
-        
-    folder_path = args[0]
-    output_path = args[1] if len(args) > 1 else "output_combined.mp4"
+    args = parser.parse_args()
     
     print()
     join_multiple_videos(
-        folder_path, 
+        args.folder_path, 
         transition_blob, 
-        output_path, 
+        args.output_path, 
         bg_music_paths=bg_music_files if bg_music_files else None,
         transition_audio_path=transition_audio,
-        is_short=is_short
+        is_short=args.short,
+        intro_path=args.intro,
+        outro_path=args.outro
     )

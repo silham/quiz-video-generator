@@ -253,6 +253,7 @@ def main():
     upload_youtube = '--youtube' in args
     upload_facebook = '--facebook' in args
     is_short = '--short' in args
+    is_long = '--long' in args
     
     # Get title and description
     title = "Quiz Video"
