@@ -18,3 +18,5 @@ bg-music
 youtube_token.pickle
 
 *.zip
+
+service-account.json
