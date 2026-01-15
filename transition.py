@@ -162,7 +162,11 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
         clips.append(VideoFileClip(final_intro_path))
     
     # Add question clips
-    clips.extend([VideoFileClip(path) for num, path in video_files])
+    print(f"Loading {len(video_files)} question clips...")
+    for i, (num, path) in enumerate(video_files):
+        print(f"  Loading clip {i+1}/{len(video_files)}: {os.path.basename(path)}...", end='\r')
+        clips.append(VideoFileClip(path))
+    print("\nAll clips loaded successfully.")
     
     # Add outro if exists
     if has_outro:
