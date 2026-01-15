@@ -116,7 +116,9 @@ Examples:
     parser.add_argument('--output', type=str, help='Output video filename')
     parser.add_argument('--video-path', type=str, help='Path to existing final video for publishing')
     parser.add_argument('--short', action='store_true', help='Generate vertical Shorts/Reels videos (9:16)')
+    parser.add_argument('--vertical', action='store_true', help='Generate vertical MCQ videos (9:16)')
     parser.add_argument('--long', action='store_true', help='Generate horizontal videos (16:9)')
+    parser.add_argument('--live', action='store_true', help='Optimize for YouTube Live (30fps, 4500kbps, 2s GOP)')
     parser.add_argument('--comp', type=str, help='Remotion composition ID to render')
     parser.add_argument('--intro', type=str, help='Path to intro video file')
     parser.add_argument('--outro', type=str, help='Path to outro video file')
@@ -196,6 +198,8 @@ def main():
         cmd = ["node", "render.mjs"]
         if args.short:
             cmd.append("--short")
+        if args.vertical:
+            cmd.append("--vertical")
         if args.long:
             cmd.append("--long")
         if args.comp:
@@ -296,10 +300,12 @@ def main():
         
         # Run transition.py
         transition_cmd = [python_cmd, "transition.py", quiz_folder, output_name]
-        if args.short:
+        if args.short or args.vertical:
             transition_cmd.append("--short")
         if args.long:
             transition_cmd.append("--long")
+        if args.live:
+            transition_cmd.append("--live")
         if args.intro:
             transition_cmd.extend(["--intro", args.intro])
         if args.outro:
@@ -395,7 +401,7 @@ def main():
                 cmd.append("--youtube")
             if publish_facebook:
                 cmd.append("--facebook")
-            if args.short:
+            if args.short or args.vertical:
                 cmd.append("--short")
             if args.long:
                 cmd.append("--long")

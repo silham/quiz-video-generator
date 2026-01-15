@@ -8,6 +8,7 @@ import {
 } from "./BubbleBackgroundComposition";
 import { ShortsQuizQuestion, shortsSchema } from "./Quiz/ShortsQuizQuestion";
 import { MCQQuizQuestion, mcqSchema } from "./Quiz/MCQQuizQuestion";
+import { VerticalMCQQuizQuestion, verticalMCQSchema } from "./Quiz/VerticalMCQQuizQuestion";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -95,6 +96,27 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         schema={mcqSchema}
+        defaultProps={{
+          questionNumber: 1,
+          questionText: "What is the largest planet in our solar system",
+          questionImageSrc: "1040-500x500.jpg",
+          answerImageSrc: "290-500x500.jpg",
+          options: ["Earth", "Jupiter", "Saturn"],
+          correctAnswerIndex: 1,
+          questionAudioSrc: "question-2.mp3",
+          answerAudioSrc: "answer-2.mp3",
+          bgColor: "#91dAE2",
+        }}
+      />
+
+      <Composition
+        id="VerticalMCQ"
+        component={VerticalMCQQuizQuestion}
+        durationInFrames={420} // 14 seconds * 30 fps
+        fps={30}
+        width={1080}
+        height={1920}
+        schema={verticalMCQSchema}
         defaultProps={{
           questionNumber: 1,
           questionText: "What is the largest planet in our solar system",

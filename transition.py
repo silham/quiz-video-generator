@@ -96,7 +96,7 @@ def join_two_clips_with_matte(clip1, clip2, matte_path, transition_duration=2.5,
     
     return final_video
 
-def join_multiple_videos(folder_path, matte_path, output_path="output_combined.mp4", bg_music_paths=None, transition_audio_path=None, is_short=False, intro_path=None, outro_path=None):
+def join_multiple_videos(folder_path, matte_path, output_path="output_combined.mp4", bg_music_paths=None, transition_audio_path=None, is_short=False, intro_path=None, outro_path=None, is_live=False):
     """Join all question videos in a folder with liquid transitions (Optimized)"""
     print(f"\n🚀 Starting Optimized Transition Script (Flattened Composition)...")
     if is_short:
@@ -319,16 +319,35 @@ def join_multiple_videos(folder_path, matte_path, output_path="output_combined.m
     # Note: MoviePy uses libx264 by default. We can try to pass codec='h264_videotoolbox'
     # but it might require specific ffmpeg build. Safe bet is libx264 with ultrafast.
     
+    ffmpeg_params = [
+        '-movflags', '+faststart',
+        '-pix_fmt', 'yuv420p'
+    ]
+    
+    bitrate = None
+    if is_live:
+        print("  Configuring for YouTube Live (30fps, 4500kbps, 2s GOP)...")
+        # YouTube Live specs:
+        # - Keyframe interval: 2 seconds (at 30fps = 60 frames)
+        # - Bitrate: 4500Kbps (for 1080p)
+        ffmpeg_params.extend([
+            '-g', '60',              # GOP size 60 (2 seconds at 30fps)
+            '-keyint_min', '60',     # Minimum GOP size
+            '-sc_threshold', '0',    # Disable scene cut detection
+            '-b:v', '4500k',         # Video bitrate
+            '-maxrate', '4500k',     # Max bitrate
+            '-bufsize', '9000k'      # Buffer size (2x bitrate)
+        ])
+        bitrate = "4500k"
+
     final_video.write_videofile(
         output_path, 
         codec="libx264",
         audio_codec="aac",
         threads=16,  # Maximize threads for M4
         preset='ultrafast',  # Fastest encoding
-        ffmpeg_params=[
-            '-movflags', '+faststart',
-            '-pix_fmt', 'yuv420p'
-        ]
+        ffmpeg_params=ffmpeg_params,
+        bitrate=bitrate
     )
     print(f"\n✅ Video saved to: {output_path}")
 
@@ -367,19 +386,21 @@ if __name__ == "__main__":
                 full_path = os.path.join(bg_music_folder, filename)
                 bg_music_files.append(full_path)
                 print(f"  - {filename}")
-    else:
-        # Fall back to looking for individual files
-        bg_music_patterns = ['bg-music.mp3', 'bg-music.m4a', 'background-music.mp3', 'background-music.m4a']
-        for pattern in bg_music_patterns:
-            if os.path.exists(pattern):
-                bg_music_files.append(pattern)
-                print(f"✓ Background music found: {pattern}")
+    parser.add_argument('--live', action='store_true', help='Optimize for YouTube Live')
     
-    if not bg_music_files:
-        print("ℹ No background music found (create 'bg-music' folder with audio files or place bg-music.mp3)")
+    args = parser.parse_args()
     
-    # Parse arguments
-    parser = argparse.ArgumentParser(description='Join quiz videos with transitions')
+    print()
+    join_multiple_videos(
+        args.folder_path, 
+        transition_blob, 
+        args.output_path, 
+        bg_music_paths=bg_music_files if bg_music_files else None,
+        transition_audio_path=transition_audio,
+        is_short=args.short,
+        intro_path=args.intro,
+        outro_path=args.outro,
+        is_live=args.livetParser(description='Join quiz videos with transitions')
     parser.add_argument('folder_path', help='Folder containing question videos')
     parser.add_argument('output_path', nargs='?', default='output_combined.mp4', help='Output video path')
     parser.add_argument('--short', action='store_true', help='Vertical mode')

@@ -5,7 +5,8 @@ export const QuizImage: React.FC<{
   readonly questionImageSrc: string;
   readonly answerImageSrc: string;
   readonly transitionStartTime: number; // in seconds, when to start transitioning to answer
-}> = ({ questionImageSrc, answerImageSrc, transitionStartTime }) => {
+  readonly style?: React.CSSProperties;
+}> = ({ questionImageSrc, answerImageSrc, transitionStartTime, style }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -60,6 +61,7 @@ export const QuizImage: React.FC<{
         transform: `translate(${translateX}px, -50%)`,
         width: "700px",
         height: "700px",
+        ...style,
       }}
     >
       <div

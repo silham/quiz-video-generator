@@ -16,6 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
 const isShort = args.includes('--short');
 const isLong = args.includes('--long');
+const isVertical = args.includes('--vertical');
 const compArgIndex = args.indexOf('--comp');
 const explicitComp = compArgIndex !== -1 ? args[compArgIndex + 1] : null;
 const apiUrlArg = args.find(arg => !arg.startsWith('--') && arg !== explicitComp); // Can be API URL or JSON file path
@@ -29,6 +30,8 @@ if (explicitComp) {
   compositionId = 'ShortsQuiz';
 } else if (isLong) {
   compositionId = 'MCQQuiz';
+} else if (isVertical) {
+  compositionId = 'VerticalMCQ';
 }
 
 // Rate limiting configuration
@@ -322,7 +325,7 @@ async function renderQuiz() {
       };
 
       // Add MCQ specific props if needed
-      if (compositionId === 'MCQQuiz') {
+      if (compositionId === 'MCQQuiz' || compositionId === 'VerticalMCQ') {
         inputProps.options = q.answers;
         inputProps.correctAnswerIndex = q.correctAnswerIndex;
       }
