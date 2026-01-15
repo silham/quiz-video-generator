@@ -386,6 +386,25 @@ if __name__ == "__main__":
                 full_path = os.path.join(bg_music_folder, filename)
                 bg_music_files.append(full_path)
                 print(f"  - {filename}")
+    else:
+        # Fall back to looking for individual files
+        bg_music_patterns = ['bg-music.mp3', 'bg-music.m4a', 'background-music.mp3', 'background-music.m4a']
+        for pattern in bg_music_patterns:
+            if os.path.exists(pattern):
+                bg_music_files.append(pattern)
+                print(f"✓ Background music found: {pattern}")
+    
+    if not bg_music_files:
+        print("ℹ No background music found (create 'bg-music' folder with audio files or place bg-music.mp3)")
+    
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Join quiz videos with transitions')
+    parser.add_argument('folder_path', help='Folder containing question videos')
+    parser.add_argument('output_path', nargs='?', default='output_combined.mp4', help='Output video path')
+    parser.add_argument('--short', action='store_true', help='Vertical mode')
+    parser.add_argument('--long', action='store_true', help='Horizontal mode')
+    parser.add_argument('--intro', type=str, help='Path to intro video')
+    parser.add_argument('--outro', type=str, help='Path to outro video')
     parser.add_argument('--live', action='store_true', help='Optimize for YouTube Live')
     
     args = parser.parse_args()
@@ -400,24 +419,5 @@ if __name__ == "__main__":
         is_short=args.short,
         intro_path=args.intro,
         outro_path=args.outro,
-        is_live=args.livetParser(description='Join quiz videos with transitions')
-    parser.add_argument('folder_path', help='Folder containing question videos')
-    parser.add_argument('output_path', nargs='?', default='output_combined.mp4', help='Output video path')
-    parser.add_argument('--short', action='store_true', help='Vertical mode')
-    parser.add_argument('--long', action='store_true', help='Horizontal mode')
-    parser.add_argument('--intro', type=str, help='Path to intro video')
-    parser.add_argument('--outro', type=str, help='Path to outro video')
-    
-    args = parser.parse_args()
-    
-    print()
-    join_multiple_videos(
-        args.folder_path, 
-        transition_blob, 
-        args.output_path, 
-        bg_music_paths=bg_music_files if bg_music_files else None,
-        transition_audio_path=transition_audio,
-        is_short=args.short,
-        intro_path=args.intro,
-        outro_path=args.outro
+        is_live=args.live
     )
